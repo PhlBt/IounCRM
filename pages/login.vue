@@ -1,10 +1,7 @@
 <template>
   <v-row align="center" justify="center">
     <v-col cols="12" sm="8" md="4">
-      <v-card
-        class="elevation-12"
-        v-if="confirmationResult === null"
-      >
+      <v-card class="elevation-12" v-if="confirmationResult === null">
         <v-toolbar color="primary" dark flat>
           <v-toolbar-title> Авторизация </v-toolbar-title>
           <v-spacer></v-spacer>
@@ -29,10 +26,7 @@
           <v-btn id="login-btn" color="primary" @click="login()">Войти</v-btn>
         </v-card-actions>
       </v-card>
-      <v-card
-        class="elevation-12"
-        v-else
-      >
+      <v-card class="elevation-12" v-else>
         <v-toolbar color="primary" dark flat>
           <v-toolbar-title> Введите код из смс сообщения </v-toolbar-title>
           <v-spacer></v-spacer>
@@ -81,27 +75,31 @@ export default {
       phone: "",
       code: "",
       captcha: null,
-      confirmationResult: null
+      confirmationResult: null,
     };
   },
   mounted() {
-    this.captcha = new this.$fireModule.auth.RecaptchaVerifier('login-btn', {
-      'size': 'invisible'
-    })
+    this.captcha = new this.$fireModule.auth.RecaptchaVerifier("login-btn", {
+      size: "invisible",
+    });
   },
   methods: {
     login: function () {
-      this.$fire.auth.signInWithPhoneNumber(this.phone, this.captcha)
+      this.$fire.auth
+        .signInWithPhoneNumber(this.phone, this.captcha)
         .then((result) => {
-          this.confirmationResult = result
-        }).catch((error) => console.log(error))
+          this.confirmationResult = result;
+        })
+        .catch((error) => console.log(error));
     },
     codeConfirm: function () {
-      this.confirmationResult.confirm(this.code)
-        .catch((error) => console.log(error))
+      this.confirmationResult
+        .confirm(this.code)
+        .then(() => {this.$router.push('/login')})
+        .catch((error) => console.log(error));
     },
-    again: function() {
-      this.confirmationResult = null
+    again: function () {
+      this.confirmationResult = null;
     },
     phoneMask: function (status) {
       if (status) {

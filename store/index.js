@@ -44,5 +44,6 @@ export const actions = {
 
 export const getters = {
     user: state => state.user,
+    isAuthed: state => !!state.user,
     menu: state => state.menu[0],
 }

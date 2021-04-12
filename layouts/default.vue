@@ -8,15 +8,24 @@
       <v-toolbar-title v-text="this.$store.getters.title" />
 
       <v-spacer />
-      <v-card dark>
-        <v-row class="d-flex justify-space-around align-center">
-          <v-card-title>
-            <v-icon>mdi-account</v-icon>
-            <span class="user">{{ user.name }}</span>
-            <v-icon @click="logout()">mdi-login</v-icon>
-          </v-card-title>
-        </v-row>
-      </v-card>
+      <v-btn
+        color="info"
+        tile
+        class="mr-2"
+        to="/profile">
+        <v-icon left>
+          mdi-account-circle-outline
+        </v-icon>
+        {{ this.user.name }}
+      </v-btn>
+      <v-btn
+        color="info"
+        tile>
+        <v-icon 
+          @click="logout()">
+          mdi-login
+        </v-icon>
+      </v-btn>
     </v-app-bar>
 
     <v-main>
@@ -28,35 +37,42 @@
     <Notification/>
 
     <v-footer app fixed class="footer">
-      <span class="mr-6"><v-icon class="mr-2" size="16">mdi-copyright</v-icon>{{ new Date().getFullYear() }}</span>
-      <span><v-icon class="mr-2" size="18">mdi-telegram</v-icon><a href="https://t.me/PhlBt">PhlBt</a></span>
+      <span class="mr-6">
+        <v-icon class="mr-2" size="16">mdi-copyright</v-icon>
+        2020 - {{ new Date().getFullYear() }}
+      </span>
+      <span>
+        <v-icon class="mr-2" size="18">mdi-telegram</v-icon>
+        <a href="https://t.me/PhlBt">PhlBt</a>
+      </span>
     </v-footer>
 
   </v-app>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import LeftBar from '../components/LeftBar'
+import Notification from '../components/Notification'
+
 export default {
   components: {
-    LeftBar
+    LeftBar,
+    Notification
   },
   data () {
     return {
       drawer: true,
-      user: this.$store.getters.user
     }
+  },
+  computed: {
+    ...mapGetters({user: 'auth/user'})
   },
   methods: {
     logout: function() {
-      this.$fire.auth.signOut()
+      this.$store.dispatch('logout')
+      this.$router.push('/login')
     }
   }
 }
 </script>
-
-<style scoped>
-  .user {
-    padding: 0 10px;
-  }
-</style>

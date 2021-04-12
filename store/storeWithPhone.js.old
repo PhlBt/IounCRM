@@ -1,0 +1,54 @@
+export const state = () => ({
+    reg: false,
+    needUpdate: false,
+    user: { auth: false },
+})
+
+export const mutations = {
+    setReg: (state, payload) => state.reg = !!payload,
+    setNeedUpdate: (state, payload) => state.needUpdate = !!payload,
+    setUser: (state, payload) => {
+        state.user.auth = true
+        if (!!payload.uid) state.user.uid = payload.uid
+        if (!!payload.name) state.user.name = payload.name
+        if (!!payload.phone) state.user.phone = payload.phone
+        if (!!payload.project) state.user.project = payload.project
+        if (!!payload.phoneNumber) state.user.phoneNumber = payload.phoneNumber
+    },
+    unsetUser: state => state.user = { auth: false }
+}
+
+export const actions = {
+    onIdTokenChangedAction: ({ commit, dispatch }, user) => {
+        if (!user.authUser) return commit('unsetUser')
+
+        dispatch('checkReg', user)
+        dispatch('setUser', user)
+    },
+    setUser: function ({ commit }, user) {
+        commit('setUser', user.authUser)
+        commit('setReg', user.claims.reg)
+
+        this.$fire.firestore
+            .collection("users")
+            .doc(user.authUser.uid).get()
+            .then((doc) => {
+                if (doc.exists) commit('setUser', doc.data())
+            })
+    },
+    checkReg: function ({ state, commit }) {
+        if (state.reg === undefined || state.needUpdate)
+            setTimeout(() => {
+                this.$fire.auth.currentUser.getIdToken(true)
+            }, 1000)
+
+        if (state.reg) commit('setNeedUpdate', false)
+    },
+    logout: function () { this.$fire.auth.signOut() },
+}
+
+export const getters = {
+    user: state => state.user,
+    isAuthed: state => state.user.auth,
+    isRegistered: state => state.reg
+}

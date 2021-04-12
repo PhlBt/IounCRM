@@ -1,114 +1,161 @@
 <template>
   <v-row align="center" justify="center">
-    <v-col cols="12" sm="8" md="4">
-      <v-card class="elevation-12" v-if="confirmationResult === null">
-        <v-toolbar color="primary" dark flat>
-          <v-toolbar-title> Авторизация </v-toolbar-title>
-          <v-spacer></v-spacer>
-        </v-toolbar>
-        <v-card-text>
-          <v-form>
-            <v-text-field
-              v-model="phone"
-              id="phone"
-              label="Телефон"
-              name="phone"
-              prepend-icon="mdi-cellphone-key"
-              type="phone"
-              maxlength="12"
-              @focus="phoneMask(true)"
-              @blur="phoneMask(false)"
-              @keyup.enter="login()"
-            ></v-text-field>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn id="login-btn" color="primary" @click="login()">Войти</v-btn>
-        </v-card-actions>
-      </v-card>
-      <v-card class="elevation-12" v-else>
-        <v-toolbar color="primary" dark flat>
-          <v-toolbar-title> Введите код из смс сообщения </v-toolbar-title>
-          <v-spacer></v-spacer>
-        </v-toolbar>
-        <v-card-text>
-          <v-form>
-            <v-text-field
-              v-model="code"
-              id="code"
-              label="Код"
-              name="code"
-              @keyup.enter="codeConfirm()"
-            ></v-text-field>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="primary" @click="codeConfirm()">Подтвердить</v-btn>
-          <v-btn color="error" @click="again()">Отменить</v-btn>
-        </v-card-actions>
+    <v-col cols="12" sm="8" md="3">
+      <v-card class="elevation-12">
+        <v-tabs fixed-tabs dark background-color="primary">
+          <v-tab @click="authReg = true">
+            <v-icon class="mr-3">mdi-account-key-outline</v-icon>
+            Авторизация
+          </v-tab>
+          <v-tab @click="authReg = false">
+            <v-icon class="mr-3">mdi-account-plus-outline</v-icon>
+            Регистрация
+          </v-tab>
+        </v-tabs>
+        <div v-if="authReg">
+          <v-card-text>
+						<v-form ref="auth" @keyup.enter="auth()">
+              <v-text-field
+                v-model="email"
+                id="email"
+                label="Почта"
+                name="email"
+                prepend-icon="mdi-email-outline"
+                type="email"
+                :rules="rules.email"
+              ></v-text-field>
+              <v-text-field
+                v-model="password"
+                id="password"
+                label="Пароль"
+                name="password"
+                prepend-icon="mdi-form-textbox-password"
+                type="password"
+                minlength="4"
+                :rules="rules.password"
+              ></v-text-field>
+            </v-form>
+          </v-card-text>
+          <v-card-actions class="d-flex justify-center mb-3">
+            <v-btn class="w-50" id="login-btn" color="primary" @click="auth()">
+              Войти
+            </v-btn>
+          </v-card-actions>
+        </div>
+				<div v-else>
+          <v-card-text>
+						<v-form ref="reg" @keyup.enter="reg()">
+              <v-text-field
+                v-model="email"
+                id="email"
+                label="Почта"
+                name="email"
+                prepend-icon="mdi-email-outline"
+                type="email"
+                :rules="rules.email"
+              ></v-text-field>
+              <v-text-field
+                v-model="password"
+                id="password"
+                label="Пароль"
+                name="password"
+                prepend-icon="mdi-form-textbox-password"
+                type="password"
+                minlength="4"
+                :rules="rules.password"
+              ></v-text-field>
+							<v-container>
+								<v-row>
+									<v-text-field
+										class="w-45"
+										v-model="name"
+										id="name"
+										label="Имя"
+										name="name"
+										prepend-icon="mdi-account-outline"
+										type="name"
+										:rules="rules.name"
+									></v-text-field>
+									<v-text-field
+										class="w-45"
+										v-model="project"
+										id="project"
+										label="Проект"
+										name="project"
+										prepend-icon="mdi-folder-outline"
+										type="project"
+										minlength="4"
+										:rules="rules.project"
+									></v-text-field>
+								</v-row>
+							</v-container>
+            </v-form>
+          </v-card-text>
+          <v-card-actions class="d-flex justify-center mb-3">
+            <v-btn class="w-50" id="login-btn" color="primary" @click="reg()">
+              Зарегистрироваться
+            </v-btn>
+          </v-card-actions>
+        </div>
       </v-card>
     </v-col>
   </v-row>
 </template>
 
 <script>
-import VueRecaptcha from "vue-recaptcha";
-
 export default {
   layout: "thin",
   name: "login",
-  components: { VueRecaptcha },
-  head() {
-    return {
-      script: [
-        {
-          src:
-            "https://www.google.com/recaptcha/api.js?onload=vueRecaptchaApiLoaded&render=explicit",
-          async: true,
-          defer: true,
-        },
-      ],
-    };
-  },
   data: function () {
     return {
-      phone: "",
-      code: "",
-      captcha: null,
-      confirmationResult: null,
+			authReg: true,
+			name: "",
+      email: "",
+			password: "",
+      project: "",
+      rules: {
+        name: [(v) => !!v || "Имя необходимо заполнить"],
+        email: [(v) => !!v || "Почту необходимо заполнить"],
+        password: [
+					(v) => !!v || "Пароль необходимо заполнить",
+					(v) => (v || '').length >= 6 || "Пароль должен содержать больше 6 символов"
+				],
+        project: [(v) => !!v || "Проект необходимо заполнить"],
+      },
     };
   },
-  mounted() {
-    this.captcha = new this.$fireModule.auth.RecaptchaVerifier("login-btn", {
-      size: "invisible",
-    });
+  computed: {
+    isAuth: function () {
+      return this.$store.getters['auth/isAuthed']
+    }
+  },
+  watch: {
+    isAuth: function () {
+      if (this.isAuth) this.$router.push("/")
+    }
   },
   methods: {
-    login: function () {
-      this.$fire.auth
-        .signInWithPhoneNumber(this.phone, this.captcha)
-        .then((result) => {
-          this.confirmationResult = result;
-        })
-        .catch((error) => console.log(error));
+    auth: function() {
+      if (!this.$refs["auth"].validate()) return
+
+			this.$fire.auth
+				.signInWithEmailAndPassword(this.email, this.password)
+				.catch((error) => console.log(error))
     },
-    codeConfirm: function () {
-      this.confirmationResult
-        .confirm(this.code)
-        .then(() => {this.$router.push('/login')})
-        .catch((error) => console.log(error));
-    },
-    again: function () {
-      this.confirmationResult = null;
-    },
-    phoneMask: function (status) {
-      if (status) {
-        this.phone =
-          this.phone.substring(0, 2) !== "+7" ? `+7${this.phone}` : this.phone;
-      } else {
-        this.phone = this.phone.length > 2 ? this.phone : "";
-      }
-    },
+		reg: function() {
+      if (!this.$refs["reg"].validate()) return
+
+			this.$fire.auth
+				.createUserWithEmailAndPassword(this.email, this.password)
+				.then((userCredential) => {
+					this.$fire.firestore.collection("users")
+						.doc(userCredential.user.uid).set({
+							name: this.name,
+							project: this.project,
+						})
+				})
+				.catch((error) => console.log(error))
+		}
   },
 };
 </script>

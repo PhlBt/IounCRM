@@ -23,6 +23,7 @@ export default {
 
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
+    '@/assets/global.scss'
   ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
@@ -46,22 +47,23 @@ export default {
   // Firebase module configuration: https://firebase.nuxtjs.org/guide/getting-started#configure
   firebase: {
     config: {
-      apiKey: "AIzaSyAlRv8OqEja_pmg6cDFsSyVBSgjp3nkwl0",
-      authDomain: "coffeecrm-11610.firebaseapp.com",
-      projectId: "coffeecrm-11610",
-      storageBucket: "coffeecrm-11610.appspot.com",
-      messagingSenderId: "235769192918",
-      appId: "1:235769192918:web:f891fc3883485fe2384477",
-      measurementId: "G-1993VD94S1"
+      apiKey: "AIzaSyBNQMk7T_R6LeqymJ-qngERgZLXylGpXjc",
+      authDomain: "phlbtcrm.firebaseapp.com",
+      projectId: "phlbtcrm",
+      storageBucket: "phlbtcrm.appspot.com",
+      messagingSenderId: "757805963197",
+      appId: "1:757805963197:web:f0e014679ede5acfafe4d4",
+      measurementId: "G-FERZSZ55EM"
     },
     services: {
       auth: {
-        persistence: 'session', // default
+        persistence: 'local', // default
         initialize: {
-          onAuthStateChangedAction: 'onAuthStateChangedAction',
+          onAuthStateChangedAction: 'auth/onAuthStateChangedAction',
         },
         ssr: false,
-      }
+      },
+      firestore: true
     }
   },
 
@@ -94,10 +96,3 @@ export default {
   build: {
   }
 }
-/*
-* Google reCaptcha
-* site key
-* 6LcOmU8aAAAAAJYPk9tY_fdowhH1YaCMmBB1HwQv
-* secret key
-* 6LcOmU8aAAAAAEyubUu1lsEwQMliS2m6aug6jELO
-*/

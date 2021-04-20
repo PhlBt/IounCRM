@@ -57,7 +57,7 @@ export default {
     },
     services: {
       auth: {
-        persistence: 'local', // default
+        persistence: 'session', // default
         initialize: {
           onAuthStateChangedAction: 'auth/onAuthStateChangedAction',
         },

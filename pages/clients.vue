@@ -20,7 +20,7 @@
 
     <Popup
       :data="popup"
-      @close="popup.show = false"
+      @close="closePopup"
       />
 
   </div>
@@ -54,34 +54,27 @@ export default {
     }
   },
   methods: {
-    doAddClient: function() {
+    doAddClient() {
       this.popup.title = 'Добавление нового клиента'
       this.popup.edit = false
       this.popup.show = true
-      // this.$store.dispatch("client/create", {
-      //   name: "Test",
-      //   legalName: "IP Test",
-      //   phone: 79666666666,
-      //   inn: 7727563778,
-      //   bank: "Test bank name",
-      //   bik: "044525231",
-      //   checkingAccount: 28130000840990000321,
-      //   correspondentAccount: 102221112147300344385,
-      //   address: "test address",
-      //   legalAddress: "test legal address",
-      // })
     },
-    doEditClient: function(item) {
+    doEditClient(item) {
       this.popup.title = 'Редакирование клиента'
       this.popup.edit = item
       this.popup.show = true
     },
-    delClient: function (id) {
+    delClient(id) {
       this.$store.dispatch('client/delete', id)
     },
-    test: function (data) {
-      console.log(data)
-    },
+    closePopup() {
+      this.popup = {
+        show: false,
+        edit: false,
+        name: 'client',
+        title: 'Клиент'
+      }
+    }
   },
 };
 </script>

@@ -3,7 +3,8 @@ export const state = () => ({
     value: {
         name: { type: 'string', require: true, label: 'Название', cols: 6 },
         phone: { type: 'number', require: false, label: 'Телефон', cols: 6 },
-        legalName: { type: 'string', require: false, label: 'Юридическое название', cols: 12 },
+        email: { type: 'string', require: false, label: 'Электронная почта', cols: 6 },
+        legalName: { type: 'string', require: false, label: 'Юридическое название', cols: 6 },
         address: { type: 'string', require: false, label: 'Адрес', cols: 6 },
         bank: { type: 'string', require: false, label: 'Банк', cols: 6 },
         inn: { type: 'number', require: false, label: 'ИНН', cols: 6 },
@@ -15,15 +16,21 @@ export const state = () => ({
 })
 
 export const actions = {
-    save: function ({ dispatch }, payload) {
+    save: function ({ dispatch, state }, payload) {
         let data = { ...payload }
-        for (let val in data)
-            if (data.hasOwnProperty(val) && !data[val])
-                delete data[val]
-        if (data.id)
-            dispatch('update', data)
-        else
+
+        if (data.id) {
+            let id = data.id
+            delete data['id']
+
+            dispatch('update', {id: id, data: data})
+        } else {
+            for (let val in data)
+                if (data.hasOwnProperty(val) && !data[val])
+                    delete data[val]
+
             dispatch('create', data)
+        }
     },
     create: function ({ dispatch }, payload) {
         this.$fire.firestore
@@ -36,13 +43,10 @@ export const actions = {
             })
     },
     update: function ({ dispatch }, payload) {
-        let id = payload.id
-        delete payload['id']
-
         this.$fire.firestore
-            .collection("clients").doc(id).set(payload)
+            .collection("clients").doc(payload.id).set(payload.data)
             .then(()=>{
-                dispatch('addAlert', { status: true, message: `Клиент ${payload.name} изменен` }, { root: true })
+                dispatch('addAlert', { status: true, message: `Клиент ${payload.data.name} изменен` }, { root: true })
                 return true
             })
             .catch(()=>{
@@ -67,7 +71,7 @@ export const actions = {
                 let list = []
                 snapshots.forEach(doc => list.push({ id: doc.id, ...doc.data() }))
                 commit('setClient', list)
-                commit('isLoad', true)
+                if (!state.isLoad) commit('isLoad', true)
             })
     }
 }

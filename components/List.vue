@@ -5,11 +5,21 @@
         :headers="headers"
         :items="items"
         :hide-default-footer="this.items.length < 10"
+        :sort-by="['numb']"
+        :sort-desc="[true]"
       >
         <template v-slot:[`header.action`]>
           <div class="d-flex justify-end">
             <slot name="headerAction" />
           </div>
+        </template>
+
+        <template v-slot:[`item.sum`]="{ item }">
+          {{ item.sum }} руб.
+        </template>
+
+        <template v-slot:[`item.gross`]="{ item }">
+          {{ item.gross }} руб.
         </template>
 
         <template v-slot:[`item.action`]="{ item }">
@@ -34,6 +44,5 @@ export default {
       return this.$store.getters[`${this.itemsName}`];
     },
   },
-  methods: {},
 };
 </script>

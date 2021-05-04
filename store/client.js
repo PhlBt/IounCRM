@@ -16,7 +16,7 @@ export const state = () => ({
 })
 
 export const actions = {
-    save: function ({ dispatch, state }, payload) {
+    save: function ({ dispatch }, payload) {
         let data = { ...payload }
 
         if (data.id) {
@@ -82,7 +82,7 @@ export const mutations = {
 }
 
 export const getters = {
-    getId: (state, id) => state.clients.find(item => item.id == id),
+    get: state => id => state.clients.find(item =>  item.id == id),
     list: state => state.clients,
     value: state => state.value
 }

@@ -49,6 +49,7 @@
                 v-model="email"
                 id="email"
                 label="Почта"
+                placeholder="Почта"
                 name="email"
                 prepend-icon="mdi-email-outline"
                 type="email"

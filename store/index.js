@@ -3,9 +3,10 @@ export const state = () => ({
     companyName: 'Ioun CRM',
     alerts: [],
     menu: [
-      { icon: 'mdi-home-circle-outline', title: 'Главная', to: '/' },
-      { icon: 'mdi-card-bulleted-settings-outline', title: 'Задачи', to: '/tasks' },
-      { icon: 'mdi-face-recognition', title: 'Клиенты', to: '/clients' }
+        { icon: 'mdi-home-circle-outline', title: 'Главная', to: '/' },
+        { icon: 'mdi-card-bulleted-settings-outline', title: 'Задачи', to: '/tasks' },
+        { icon: 'mdi-face-recognition', title: 'Клиенты', to: '/clients' },
+        { icon: 'mdi-currency-rub', title: 'Счета', to: '/bills' }
     ]
 })
 

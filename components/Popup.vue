@@ -1,7 +1,7 @@
 <template>
   <v-dialog
     v-model="data.show"
-    max-width="600px"
+    :max-width="maxWidth"
     persistent
     @click:outside="reset"
   >
@@ -20,7 +20,6 @@
                 :key="index"
                 :cols="item.cols"
               >
-
                 <v-text-field
                   v-if="item.type === 'string' || item.type === 'number'"
                   v-model="edit[index]"
@@ -28,6 +27,36 @@
                   :rules="getRules(item)"
                   :label="item.label"
                 />
+
+                <v-select
+                  v-if="item.type === 'reference'"
+                  v-model="edit[index]"
+                  :label="item.label"
+                  :items="getOptions(item.target)"
+                  item-text="name"
+                  item-value="id"
+                />
+
+                <MultipleField
+                  v-if="item.type === 'multiple'"
+                  :value="edit[index]"
+                  @input="multipleUpdate($event, index)"
+                  :desc="item.value"
+                  :label="item.label"
+                  :require="item.require"
+                />
+
+                <v-row v-if="item.type === 'text'">
+                  <v-text-field
+                    readonly
+                    class="ml-auto col-3"
+                    v-model="edit[index]"
+                    autocomplete="off"
+                    :suffix="item.suffix"
+                    :rules="getRules(item)"
+                    :label="item.label"
+                  />
+                </v-row>
 
                 <!-- <v-text-field
                   v-if="item.type === 'time'"
@@ -76,10 +105,8 @@
                   v-model="editable[item.ref]"
                   :label="item.label"
                 ></v-checkbox> -->
-
               </v-col>
             </v-row>
-
           </v-form>
         </v-container>
       </v-card-text>
@@ -92,46 +119,60 @@
 </template>
 
 <script>
-  export default {
-    name: "Popup",
-    props: {
-      data: Object,
+import MultipleField from "../components/MultipleField";
+export default {
+  name: "Popup",
+  components: { MultipleField },
+  props: {
+    data: Object,
+  },
+  data() {
+    return {
+      edit: {},
+    };
+  },
+  computed: {
+    value: function () {
+      return this.$store.getters[`${this.data.name}/value`];
     },
-    data() {
-      return { 
-        edit: {}
-      }
+    maxWidth: function () {
+      return this.data.width ? this.data.width : "600px";
     },
-    computed: {
-      value: function () {
-        return this.$store.getters[`${this.data.name}/value`];
-      }
-    },
-    watch: {
-      'data': {
-        deep: true,
-        handler() {
-          if (this.data.edit)
-            this.edit = { ...this.data.edit }
-          else
-            for (let key in this.value)
-              this.edit[key] = null
-        }
-      }
-    },
-    methods: {
-      save() {
-        if (!this.$refs[this.data.name].validate()) return false
-        this.$store.dispatch(`${this.data.name}/save`, this.edit)
-        this.reset()
+  },
+  watch: {
+    data: {
+      deep: true,
+      handler() {
+        if (this.data.edit) this.edit = { ...this.data.edit };
+        else for (let key in this.value) this.edit[key] = null;
       },
-      reset() {
-        this.$refs[this.data.name].reset()
-        this.$emit('close')
-      },
-      getRules(item) {
-        if (item.require) return [v => !!v || `Поле ${item.label} обязательно к заполнению.`]
-      }
-    }
-  }
+    },
+  },
+  methods: {
+    save() {
+      if (!this.$refs[this.data.name].validate()) return false;
+      this.$store.dispatch(`${this.data.name}/save`, this.edit);
+      this.reset();
+    },
+    reset() {
+      this.$refs[this.data.name].reset();
+      this.$emit("close");
+    },
+    getRules(item) {
+      if (item.require)
+        return [(v) => !!v || `Поле ${item.label} обязательно к заполнению.`];
+    },
+    getOptions(target) {
+      return this.$store.getters[`${target}/list`];
+    },
+    multipleUpdate(event, index) {
+      this.edit[index] = event;
+
+      this.edit.sum = 0;
+      event.forEach((item) => {
+        if (item.sum) this.edit.sum += parseFloat(item.sum);
+      });
+    },
+  },
+};
 </script>

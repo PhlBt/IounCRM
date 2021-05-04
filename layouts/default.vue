@@ -70,7 +70,7 @@ export default {
   },
   methods: {
     logout: function() {
-      this.$store.dispatch('logout')
+      this.$store.dispatch('auth/logout')
       this.$router.push('/login')
     }
   }

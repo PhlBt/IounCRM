@@ -1,6 +1,5 @@
 export const state = () => ({
     bills: [],
-    billsCounter: null,
     value: {
         numb: { type: 'number', require: false, label: 'Номер', cols: 2 },
         date: { type: 'string', require: false, label: 'Дата', cols: 4 },
@@ -21,7 +20,7 @@ export const state = () => ({
 })
 
 export const actions = {
-    save: function ({ dispatch }, payload) {
+    save: function ({ dispatch, rootGetters }, payload) {
         let data = { ...payload }
         let clientId = (typeof payload.client === 'object') ? payload.client.id : payload.client
 
@@ -32,19 +31,22 @@ export const actions = {
                 delete data[val]
 
         if (data.sum !== null)
-            data.gross = data.sum * 0.06
+            data.gross = (rootGetters['client/get'](clientId).legalName !== undefined)
+                ? data.sum * 0.06
+                : data.sum * 0.04
 
         if (data.id) {
             delete data['id']
             dispatch('update', { id: payload.id, data: data })
         } else dispatch('create', data)
+
     },
-    create: function ({ dispatch, state }, payload) {
+    create: function ({ dispatch }, payload) {
         this.$fire.firestore
             .collection("bills").add(payload)
             .then(() => {
-                this.$fire.firestore.collection("billsCounter").doc("counter").update({ data: state.billsCounter + 1 });
                 dispatch('addAlert', { status: true, message: `Счет №${payload.numb} добавлен` }, { root: true })
+                dispatch('updateCurrentSum', payload.client)
             })
             .catch(() => {
                 dispatch('addAlert', { status: false, message: `При добавлении счета произошла ошибка` }, { root: true })
@@ -55,11 +57,10 @@ export const actions = {
             .collection("bills").doc(payload.id).update(payload.data)
             .then(() => {
                 dispatch('addAlert', { status: true, message: `Счет №${payload.data.numb} изменен` }, { root: true })
-                return true
+                dispatch('updateCurrentSum', payload.data.client)
             })
-            .catch(() => {
+            .catch((e) => {
                 dispatch('addAlert', { status: false, message: `При изменении счета произошла ошибка` }, { root: true })
-                return false
             })
     },
     delete: function ({ state, dispatch }, payload) {
@@ -67,35 +68,43 @@ export const actions = {
         this.$fire.firestore
             .collection("bills").doc(payload).delete().then(() => {
                 dispatch('addAlert', { status: true, message: `Счет №${item.numb} удален` }, { root: true })
+                dispatch('updateCurrentSum', item.client)
             }).catch(() => {
                 dispatch('addAlert', { status: false, message: `При удалении счета произошла ошибка` }, { root: true })
-            });
+            })
     },
-    getBillList: function ({ commit, state }) {
+    getBillList: function ({ commit, state, rootGetters }) {
         if (state.isLoad) return
         this.$fire.firestore
             .collection("bills").onSnapshot((snapshots) => {
                 let list = []
                 snapshots.forEach(doc => {
                     let bill = doc.data()
-                    bill.client.get().then((client) => {
-                        if (client.exists)
-                            commit('setBillClient', { id: doc.id, value: { id: client.id, ...client.data() } })
-                    })
-                    bill.client = {}
+                    bill.client = rootGetters['client/get'](bill.client.id)
                     list.push({ id: doc.id, ...bill })
                 })
                 commit('setBill', list)
                 if (!state.isLoad) commit('isLoad', true)
             })
     },
-    getBillsCounter({ commit, state }) {
-        if (state.billsCounter === null)
-            this.$fire.firestore
-                .collection("billsCounter").doc("counter")
-                .onSnapshot((snapshot) => {
-                    commit('setBillsCount', snapshot.data().data)
-                })
+    updateCurrentSum({ dispatch, getters }, payload) {
+        let sum = 0,
+            allSum = 0;
+
+        getters.list.map((elem) => {
+            if (elem.client.id === payload.id)
+                sum += elem.sum
+            allSum += elem.sum
+        })
+
+        this.$fire.firestore
+            .collection("clients").doc(payload.id).update({ sum: sum })
+            .catch(() => {
+                dispatch('addAlert', { status: false, message: `При обновлении дохода с клиента произошла ошибка` }, { root: true })
+            })
+
+        this.$fire.firestore
+            .collection("clients").doc("hgNIKngBduiR0g1PRlr1").update({ sum: allSum })
     }
 }
 
@@ -104,7 +113,6 @@ export const mutations = {
         state.bills.find(item => item.id === id).client = value
     },
     setBill: (state, payload) => state.bills = payload,
-    setBillsCount: (state, payload) => state.billsCounter = payload,
     isLoad: (state, payload) => state.isLoad = payload
 }
 
@@ -112,5 +120,4 @@ export const getters = {
     getId: (state, id) => state.bills.find(item => item.id == id),
     list: state => state.bills,
     value: state => state.value,
-    billsCounter: state => state.billsCounter
 }

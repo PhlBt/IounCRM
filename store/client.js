@@ -1,5 +1,6 @@
 export const state = () => ({
     clients: [],
+    clientsSum: {},
     value: {
         name: { type: 'string', require: true, label: 'Название', cols: 6 },
         phone: { type: 'number', require: false, label: 'Телефон', cols: 6 },
@@ -23,7 +24,7 @@ export const actions = {
             let id = data.id
             delete data['id']
 
-            dispatch('update', {id: id, data: data})
+            dispatch('update', { id: id, data: data })
         } else {
             for (let val in data)
                 if (data.hasOwnProperty(val) && !data[val])
@@ -35,21 +36,21 @@ export const actions = {
     create: function ({ dispatch }, payload) {
         this.$fire.firestore
             .collection("clients").add(payload)
-            .then(()=>{
+            .then(() => {
                 dispatch('addAlert', { status: true, message: `Клиент ${payload.name} добавлен` }, { root: true })
             })
-            .catch(()=>{
+            .catch(() => {
                 dispatch('addAlert', { status: false, message: `При добавлении клиента произошла ошибка` }, { root: true })
             })
     },
     update: function ({ dispatch }, payload) {
         this.$fire.firestore
             .collection("clients").doc(payload.id).set(payload.data)
-            .then(()=>{
+            .then(() => {
                 dispatch('addAlert', { status: true, message: `Клиент ${payload.data.name} изменен` }, { root: true })
                 return true
             })
-            .catch(()=>{
+            .catch(() => {
                 dispatch('addAlert', { status: false, message: `При изменении клиента произошла ошибка` }, { root: true })
                 return false
             })
@@ -71,18 +72,19 @@ export const actions = {
                 let list = []
                 snapshots.forEach(doc => list.push({ id: doc.id, ...doc.data() }))
                 commit('setClient', list)
-                if (!state.isLoad) commit('isLoad', true)
+                commit('isLoad', true)
             })
-    }
+    },
 }
 
 export const mutations = {
     setClient: (state, payload) => state.clients = payload,
+    setClientSum: (state, payload) => state.clientsSum[payload.id] = payload.sum,
     isLoad: (state, payload) => state.isLoad = payload
 }
 
 export const getters = {
-    get: state => id => state.clients.find(item =>  item.id == id),
+    get: state => id => state.clients.find(item => item.id == id),
     list: state => state.clients,
-    value: state => state.value
+    value: state => state.value,
 }

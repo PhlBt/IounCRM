@@ -43,6 +43,7 @@ export default {
         { text: "Юридическое название", value: "legalName" },
         { text: "Телефон", value: "phone" },
         { text: "Адрес", value: "address" },
+        { text: "Сумма", value: "sum" },
         { text: "", value: "action", sortable: false },
       ],
       popup: {

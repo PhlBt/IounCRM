@@ -34,9 +34,8 @@ export default {
   components: { List, Popup, PdfCreater },
   created() {
     this.$store.commit("setTitle", "Счета");
-    this.$store.dispatch("bill/getBillList");
-    this.$store.dispatch("bill/getBillsCounter");
     this.$store.dispatch("client/getClientList");
+    this.$store.dispatch("bill/getBillList");
   },
   data() {
     return {
@@ -66,7 +65,7 @@ export default {
     doAddBill() {
       this.popup.title = "Добавление нового счета";
       this.popup.edit = {
-        numb: this.$store.getters[`bill/billsCounter`],
+        numb: null,
         date: new Date().toLocaleDateString(),
         client: null,
         task: [],

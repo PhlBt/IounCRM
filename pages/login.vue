@@ -14,7 +14,7 @@
         </v-tabs>
         <div v-if="authReg">
           <v-card-text>
-						<v-form ref="auth" @keyup.enter="auth()">
+            <v-form ref="auth" @keyup.enter="auth()">
               <v-text-field
                 v-model="email"
                 id="email"
@@ -42,9 +42,9 @@
             </v-btn>
           </v-card-actions>
         </div>
-				<div v-else>
+        <div v-else>
           <v-card-text>
-						<v-form ref="reg" @keyup.enter="reg()">
+            <v-form ref="reg" @keyup.enter="reg()">
               <v-text-field
                 v-model="email"
                 id="email"
@@ -65,31 +65,31 @@
                 minlength="4"
                 :rules="rules.password"
               ></v-text-field>
-							<v-container>
-								<v-row>
-									<v-text-field
-										class="w-45"
-										v-model="name"
-										id="name"
-										label="Имя"
-										name="name"
-										prepend-icon="mdi-account-outline"
-										type="name"
-										:rules="rules.name"
-									></v-text-field>
-									<v-text-field
-										class="w-45"
-										v-model="project"
-										id="project"
-										label="Проект"
-										name="project"
-										prepend-icon="mdi-folder-outline"
-										type="project"
-										minlength="4"
-										:rules="rules.project"
-									></v-text-field>
-								</v-row>
-							</v-container>
+              <v-container>
+                <v-row>
+                  <v-text-field
+                    class="w-45"
+                    v-model="name"
+                    id="name"
+                    label="Имя"
+                    name="name"
+                    prepend-icon="mdi-account-outline"
+                    type="name"
+                    :rules="rules.name"
+                  ></v-text-field>
+                  <v-text-field
+                    class="w-45"
+                    v-model="project"
+                    id="project"
+                    label="Проект"
+                    name="project"
+                    prepend-icon="mdi-folder-outline"
+                    type="project"
+                    minlength="4"
+                    :rules="rules.project"
+                  ></v-text-field>
+                </v-row>
+              </v-container>
             </v-form>
           </v-card-text>
           <v-card-actions class="d-flex justify-center mb-3">
@@ -107,56 +107,63 @@
 export default {
   layout: "thin",
   name: "login",
+  head: {
+    title: "Добро пожаловать",
+  },
   data: function () {
     return {
-			authReg: true,
-			name: "",
+      authReg: true,
+      name: "",
       email: "",
-			password: "",
+      password: "",
       project: "",
       rules: {
         name: [(v) => !!v || "Имя необходимо заполнить"],
         email: [(v) => !!v || "Почту необходимо заполнить"],
         password: [
-					(v) => !!v || "Пароль необходимо заполнить",
-					(v) => (v || '').length >= 6 || "Пароль должен содержать больше 6 символов"
-				],
+          (v) => !!v || "Пароль необходимо заполнить",
+          (v) =>
+            (v || "").length >= 6 ||
+            "Пароль должен содержать больше 6 символов",
+        ],
         project: [(v) => !!v || "Проект необходимо заполнить"],
       },
     };
   },
   computed: {
     isAuth: function () {
-      return this.$store.getters['auth/isAuthed']
-    }
+      return this.$store.getters["auth/isAuthed"];
+    },
   },
   watch: {
     isAuth: function () {
-      if (this.isAuth) this.$router.push("/")
-    }
+      if (this.isAuth) this.$router.push("/");
+    },
   },
   methods: {
-    auth: function() {
-      if (!this.$refs["auth"].validate()) return
+    auth: function () {
+      if (!this.$refs["auth"].validate()) return;
 
-			this.$fire.auth
-				.signInWithEmailAndPassword(this.email, this.password)
-				.catch((error) => console.log(error))
+      this.$fire.auth
+        .signInWithEmailAndPassword(this.email, this.password)
+        .catch((error) => console.log(error));
     },
-		reg: function() {
-      if (!this.$refs["reg"].validate()) return
+    reg: function () {
+      if (!this.$refs["reg"].validate()) return;
 
-			this.$fire.auth
-				.createUserWithEmailAndPassword(this.email, this.password)
-				.then((userCredential) => {
-					this.$fire.firestore.collection("users")
-						.doc(userCredential.user.uid).set({
-							name: this.name,
-							project: this.project,
-						})
-				})
-				.catch((error) => console.log(error))
-		}
+      this.$fire.auth
+        .createUserWithEmailAndPassword(this.email, this.password)
+        .then((userCredential) => {
+          this.$fire.firestore
+            .collection("users")
+            .doc(userCredential.user.uid)
+            .set({
+              name: this.name,
+              project: this.project,
+            });
+        })
+        .catch((error) => console.log(error));
+    },
   },
 };
 </script>

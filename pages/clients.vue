@@ -32,6 +32,9 @@ import Popup from "@/components/Popup"
 
 export default {
   components: { List, Popup },
+  head: {
+    title: "Клиенты",
+  },
   created() {
     this.$store.commit("setTitle", "Клиенты")
     this.$store.dispatch("client/getClientList")

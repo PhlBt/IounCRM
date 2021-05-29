@@ -32,6 +32,9 @@ import PdfCreater from "@/components/PdfCreater";
 
 export default {
   components: { List, Popup, PdfCreater },
+  head: {
+    title: "Счета",
+  },
   created() {
     this.$store.commit("setTitle", "Счета");
     this.$store.dispatch("client/getClientList");

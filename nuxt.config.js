@@ -4,7 +4,7 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: '%s - crm',
+    titleTemplate: '%s - Ioun CRM',
     title: 'crm',
     htmlAttrs: {
       lang: 'ru'

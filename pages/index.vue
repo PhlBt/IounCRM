@@ -13,7 +13,9 @@
 
 <script>
 export default {
-  name: "home",
+  head: {
+    title: "Главная",
+  },
   created() {
     this.$store.commit("setTitle", "Главная");
     this.$store.dispatch("client/getClientList");
@@ -23,7 +25,7 @@ export default {
     owner() {
       return (
         this.$store.getters["client/get"]("hgNIKngBduiR0g1PRlr1") || { sum: 0 }
-      )
+      );
     },
   },
 };

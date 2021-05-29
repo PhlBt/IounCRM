@@ -79,7 +79,6 @@ export const actions = {
 
 export const mutations = {
     setClient: (state, payload) => state.clients = payload,
-    setClientSum: (state, payload) => state.clientsSum[payload.id] = payload.sum,
     isLoad: (state, payload) => state.isLoad = payload
 }
 

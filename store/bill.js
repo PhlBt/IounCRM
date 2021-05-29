@@ -90,7 +90,7 @@ export const actions = {
     updateCurrentSum({ dispatch, getters }, payload) {
         let sum = 0,
             allSum = 0;
-
+        
         getters.list.map((elem) => {
             if (elem.client.id === payload.id)
                 sum += elem.sum

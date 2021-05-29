@@ -4,7 +4,7 @@
       <v-data-table
         :headers="headers"
         :items="items"
-        :hide-default-footer="this.items.length < 10"
+        :hide-default-footer="this.items.length < 11"
         :sort-by="['numb']"
         :sort-desc="[true]"
       >

@@ -17,6 +17,7 @@
             <v-row>
               <v-col
                 v-for="(item, index) in value"
+                v-show="showRow(item)"
                 :key="index"
                 :cols="item.cols"
               >
@@ -44,6 +45,25 @@
                   :desc="item.value"
                   :label="item.label"
                   :require="item.require"
+                />
+
+                <v-textarea
+                  v-if="item.type === 'textarea'"
+                  auto-grow
+                  v-model="edit[index]"
+                  autocomplete="off"
+                  :label="item.label"
+                  clear-icon="mdi-close-circle"
+                  :rows="item.rows"
+                  row-height="15"
+                ></v-textarea>
+
+                <Timer
+                  v-if="item.type === 'timer'"
+                  :id="edit.id"
+                  v-model="edit[index]"
+                  :label="item.label"
+                  :entity="data.name"
                 />
 
                 <v-row v-if="item.type === 'text'">
@@ -120,9 +140,11 @@
 
 <script>
 import MultipleField from "../components/MultipleField";
+import Timer from "../components/Timer";
+
 export default {
   name: "Popup",
-  components: { MultipleField },
+  components: { MultipleField, Timer },
   props: {
     data: Object,
   },
@@ -144,7 +166,11 @@ export default {
       deep: true,
       handler() {
         if (this.data.edit) this.edit = { ...this.data.edit };
-        else for (let key in this.value) this.edit[key] = null;
+        else
+          for (let key in this.value)
+            this.edit[key] = this.value[key].default
+              ? this.value[key].default
+              : null;
       },
     },
   },
@@ -172,6 +198,10 @@ export default {
       event.forEach((item) => {
         if (item.sum) this.edit.sum += parseFloat(item.sum);
       });
+    },
+    showRow(item) {
+      if (item.editable) if (this.edit.id === undefined) return false;
+      return true;
     },
   },
 };

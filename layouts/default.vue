@@ -8,6 +8,7 @@
       <v-toolbar-title v-text="this.$store.getters.title" />
 
       <v-spacer />
+      <portal-target name="controls"/>
       <v-btn
         color="info"
         tile

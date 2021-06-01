@@ -59,7 +59,7 @@
                   row-height="15"
                 ></v-textarea>
 
-                <v-row v-if="item.type === 'timer'">
+                <v-row v-if="item.type === 'timer' && showRow(item)">
                   <v-col>
                     <v-subheader>{{ item.label }}</v-subheader>
                     <Timer

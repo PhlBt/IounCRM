@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-row>
     <portal to="controls">
       <v-menu bottom offset-y>
         <template v-slot:activator="{ on, attrs }">
@@ -9,7 +9,7 @@
         </template>
         <v-list>
           <v-list-item-group mandatory color="secondary">
-            <v-list-item v-for="item in clientsMenu" :key="item.id" :order="item.sort">
+            <v-list-item v-for="item in clientsMenu" :key="item.id">
               <v-list-item-title @click="showClientTasks(item)">{{
                 item.name
               }}</v-list-item-title>
@@ -21,27 +21,31 @@
       <v-divider class="mx-4" vertical></v-divider>
     </portal>
 
+    <Kanban :data="task" @doEdit="doEditTask($event)" />
+
     <Popup :data="popup" @close="closePopup" />
-  </div>
+  </v-row>
 </template>
 
 <script>
 import Popup from "@/components/Popup";
+import Kanban from "@/components/Kanban";
 
 export default {
-  components: { Popup },
+  components: { Popup, Kanban },
   head: {
     title: "Задачи",
   },
   created() {
     this.$store.commit("setTitle", "Задачи");
-    this.$store.dispatch("client/getClientList");
     this.$store.dispatch("taskStatus/getStatusList");
+    this.$store.dispatch("client/getClientList");
     this.$store.dispatch("task/getTaskList");
   },
   data() {
     return {
       selectNameControls: "Задачи: Всех клиентов",
+      columnHeight: 0,
       popup: {
         show: false,
         edit: false,
@@ -57,6 +61,15 @@ export default {
         ...this.$store.getters[`client/list`],
       ];
     },
+    task() {
+      let result = {};
+      this.$store.getters[`task/list`].forEach((element) => {
+        result[element.status] !== undefined
+          ? result[element.status].push(element)
+          : (result[element.status] = [element]);
+      });
+      return result;
+    },
   },
   methods: {
     doAddTask() {
@@ -64,9 +77,9 @@ export default {
       this.popup.edit = false;
       this.popup.show = true;
     },
-    doEditTask() {
+    doEditTask(item) {
       this.popup.title = "Редактирование задачи";
-      this.popup.edit = false;
+      this.popup.edit = item;
       this.popup.show = true;
     },
     showClientTasks(item) {
@@ -86,6 +99,6 @@ export default {
 
 <style>
 .mw-250 {
-  min-width: 250px!important;
+  min-width: 250px !important;
 }
 </style>

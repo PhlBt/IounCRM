@@ -1,6 +1,6 @@
 <template>
 
-  <v-container fluid>
+  <v-container fluid class="container-list-complite">
     <v-row>
       <v-col cols="4" class="ml-auto mr-3">
         <transition-group tag="div" name="list-complete">
@@ -47,6 +47,10 @@
 </script>
 
 <style>
+  .container-list-complite {
+    position: absolute;
+    bottom: 30px;
+  }
   .list-complete-item {
     transition: all 1s;
     margin-right: 10px;

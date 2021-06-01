@@ -2,6 +2,7 @@ export const state = () => ({
     title: '',
     companyName: 'Ioun CRM',
     alerts: [],
+    timerStatus: {},
     menu: [
         { icon: 'mdi-home-circle-outline', title: 'Главная', to: '/' },
         { icon: 'mdi-card-bulleted-settings-outline', title: 'Задачи', to: '/tasks' },
@@ -39,10 +40,12 @@ export const mutations = {
             if (payload === state.alerts[item].id)
                 state.alerts.splice(item, 1)
     },
+    timerStatus: (state, payload) => state.timerStatus[payload.id] = payload.value,
 }
 
 export const getters = {
     title: state => state.title,
     alerts: state => state.alerts,
     menu: state => state.menu,
+    timerStatus: state => id => !!state.timerStatus[id]
 }

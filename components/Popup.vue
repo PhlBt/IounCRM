@@ -36,6 +36,7 @@
                   :items="getOptions(item.target)"
                   item-text="name"
                   item-value="id"
+                  :rules="getRules(item)"
                 />
 
                 <MultipleField
@@ -58,13 +59,18 @@
                   row-height="15"
                 ></v-textarea>
 
-                <Timer
-                  v-if="item.type === 'timer'"
-                  :id="edit.id"
-                  v-model="edit[index]"
-                  :label="item.label"
-                  :entity="data.name"
-                />
+                <v-row v-if="item.type === 'timer'">
+                  <v-col>
+                    <v-subheader>{{ item.label }}</v-subheader>
+                    <Timer
+                      class="ml-4"
+                      :id="edit.id"
+                      :value="edit[index]"
+                      @update="edit.index = $event"
+                      :entity="data.name"
+                    />
+                  </v-col>
+                </v-row>
 
                 <v-row v-if="item.type === 'text'">
                   <v-text-field

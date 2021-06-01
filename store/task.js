@@ -68,7 +68,6 @@ export const actions = {
                 snapshots.forEach(doc => {
                     let task = doc.data()
                     task.client = rootGetters['client/get'](task.client.id)
-                    task.status = rootGetters['taskStatus/get'](task.status.id)
                     list.push({ id: doc.id, ...task })
                 })
                 commit('setTask', list)
@@ -79,7 +78,7 @@ export const actions = {
 
 export const mutations = {
     setTask: (state, payload) => state.tasks = payload,
-    isLoad: (state, payload) => state.isLoad = payload
+    isLoad: (state, payload) => state.isLoad = payload,
 }
 
 export const getters = {

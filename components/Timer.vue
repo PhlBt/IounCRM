@@ -1,29 +1,12 @@
 <template>
-  <div>
-    <v-row>
-      <v-col cols="12">
-        {{ label }}
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col class="d-flex align-center justify-center" cols="6">
-        <span class="mr-4 text-h4">{{ timer.str }}</span>
-        <v-btn v-if="!isStarted" icon @click="timerStart()">
-          <v-icon color="green">mdi-play-circle-outline</v-icon>
-        </v-btn>
-        <v-btn v-else icon @click="timerStop()">
-          <v-icon color="red">mdi-stop-circle-outline</v-icon>
-        </v-btn>
-      </v-col>
-      <v-col cols="6">
-        <v-text-field
-          v-model="timerValue"
-          return-masked-value
-          v-mask="'##:##:##'"
-          @input="$emit('input', timerValue)"
-        />
-      </v-col>
-    </v-row>
+  <div class="d-flex align-center">
+    <span class="mr-2 text-h5">{{ timer }}</span>
+    <v-btn v-if="!isStarted" icon @click="timerStart()">
+      <v-icon color="green">mdi-play-circle-outline</v-icon>
+    </v-btn>
+    <v-btn v-else icon @click="timerStop()">
+      <v-icon color="red">mdi-stop-circle-outline</v-icon>
+    </v-btn>
   </div>
 </template>
 
@@ -31,59 +14,86 @@
 export default {
   name: "Timer",
   props: {
-    value: Number,
+    value: String,
     id: String,
-    label: String,
     entity: String,
+    test: Boolean,
   },
   data() {
     return {
       isStarted: false,
       interval: null,
-      timerValue: "00:00:00",
-      timer: {
-        int: 0,
-        str: "00:00:00",
-      },
+      timer: "00:00:00",
     };
   },
+  computed: {
+    timerStatus() {
+      return this.$store.getters["timerStatus"](this.id);
+    },
+  },
+  watch: {
+    value: {
+      immediate: true,
+      handler: function() {
+        this.check()
+      },
+    },
+    timerStatus: function () {
+      this.check();
+    },
+  },
   methods: {
+    check() {
+      if (this.getTime() !== null) {
+        this.timer = this.timeToStr();
+        this.isStarted = true;
+        this.intervalStart();
+      } else {
+        this.timer = this.value;
+        if (this.isStarted) {
+          this.isStarted = false;
+          clearInterval(this.interval);
+        }
+      }
+    },
+    getTime() {
+      return window.localStorage.getItem(`timer_${this.id}`);
+    },
     timerStart() {
       let time = new Date().getTime();
-      this.isStarted = true;
+      let currentTimer = this.timeToInt(this.value);
+      if (currentTimer > 0) time -= currentTimer;
 
+      this.intervalStart();
       window.localStorage.setItem(`timer_${this.id}`, time);
-
-      this.interval = setInterval(() => {
-        this.timerUpdate();
-      }, 1000);
+      this.$store.commit('timerStatus', { id: this.id, value: true })
+      this.isStarted = true;
     },
     timerStop() {
       clearInterval(this.interval);
-      this.timerValue = this.timeToStr(
-        this.timeToInt(this.timerValue) + this.timer.int
-      );
 
-      this.$emit('input', this.timerValue)
+      this.$emit("update", this.timer);
       this.$store.dispatch(`${this.entity}/update`, {
         id: this.id,
         data: {
-          time: this.timerValue,
+          time: this.timer,
         },
       });
 
       window.localStorage.removeItem(`timer_${this.id}`);
+      this.$store.commit('timerStatus', { id: this.id, value: false })
       this.isStarted = false;
-      this.timer = {
-        int: 0,
-        str: "00:00:00",
-      };
     },
     timerUpdate() {
-      this.timer.int = new Date().getTime() - this.getTime();
-      this.timer.str = this.timeToStr(this.timer.int);
+      this.timer = this.timeToStr();
     },
-    timeToStr(val) {
+    intervalStart() {
+      this.interval = setInterval(() => {
+        this.timerUpdate();
+      }, 1000);
+    },
+    timeToStr() {
+      let val = new Date().getTime() - this.getTime();
       let hour = Math.floor(val / 3600000).toString();
       if (hour.length == 1) hour = `0${hour}`;
       val = val % 3600000;
@@ -107,9 +117,6 @@ export default {
 
       return result;
     },
-    getTime() {
-      return window.localStorage.getItem(`timer_${this.id}`);
-    }
   },
 };
 </script>

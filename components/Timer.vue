@@ -55,13 +55,14 @@ export default {
           clearInterval(this.interval);
         }
       }
+      if (this.timer === undefined) this.timer = '00:00:00';
     },
     getTime() {
       return window.localStorage.getItem(`timer_${this.id}`);
     },
     timerStart() {
       let time = new Date().getTime();
-      let currentTimer = this.timeToInt(this.value);
+      let currentTimer = this.timeToInt(this.timer);
       if (currentTimer > 0) time -= currentTimer;
 
       this.intervalStart();

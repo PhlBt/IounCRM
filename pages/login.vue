@@ -143,26 +143,16 @@ export default {
   methods: {
     auth: function () {
       if (!this.$refs["auth"].validate()) return;
-
-      this.$fire.auth
-        .signInWithEmailAndPassword(this.email, this.password)
-        .catch((error) => console.log(error));
+      this.$store.dispatch("auth/login", { email: this.email, password: this.password });
     },
     reg: function () {
       if (!this.$refs["reg"].validate()) return;
-
-      this.$fire.auth
-        .createUserWithEmailAndPassword(this.email, this.password)
-        .then((userCredential) => {
-          this.$fire.firestore
-            .collection("users")
-            .doc(userCredential.user.uid)
-            .set({
-              name: this.name,
-              project: this.project,
-            });
-        })
-        .catch((error) => console.log(error));
+      this.$store.dispatch("auth/registration", { 
+        email: this.email,
+        password: this.password,
+        name: this.name,
+        project: this.project
+      });
     },
   },
 };

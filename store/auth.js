@@ -31,12 +31,31 @@ export const actions = {
                         uid: user.authUser.uid,
                         name: data.name
                     }))
-                commit('setUser', {...user.authUser, ...data})
+                commit('setUser', { ...user.authUser, ...data })
             })
     },
-    unsetUser: function ({ commit }) { 
+    unsetUser: function ({ commit }) {
         window.localStorage.removeItem('user')
         return commit('unsetUser')
+    },
+    login: function ({ }, payload) {
+        this.$fire.auth
+            .signInWithEmailAndPassword(payload.email, payload.password)
+            .catch((error) => console.log(error));
+    },
+    registration: function ({ }, payload) {
+        this.$fire.auth
+            .createUserWithEmailAndPassword(payload.email, payload.password)
+            .then((userCredential) => {
+                this.$fire.firestore
+                    .collection("users")
+                    .doc(userCredential.user.uid)
+                    .set({
+                        name: payload.name,
+                        project: payload.project,
+                    });
+            })
+            .catch((error) => console.log(error));
     },
     logout: function () { this.$fire.auth.signOut() }
 }

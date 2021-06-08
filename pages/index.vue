@@ -3,7 +3,7 @@
     <v-row>
       <v-col cols="2">
         <v-card class="test" color="primary" dark>
-          <v-card-title>{{ owner.sum }} р.</v-card-title>
+          <v-card-title>{{ sum }} р.</v-card-title>
           <v-card-text>Заработанно за текущий год</v-card-text>
         </v-card>
       </v-col>
@@ -22,9 +22,9 @@ export default {
   },
   methods: {},
   computed: {
-    owner() {
+    sum() {
       return (
-        this.$store.getters["client/get"]("hgNIKngBduiR0g1PRlr1") || { sum: 0 }
+        this.$store.getters["auth/user"].legal.sum || 0
       );
     },
   },

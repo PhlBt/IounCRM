@@ -21,18 +21,17 @@
       <v-divider class="mx-4" vertical></v-divider>
     </portal>
 
-    <Kanban :data="task" @doEdit="doEditTask($event)" />
+    <Board :data="task" @doEdit="doEditTask($event)" />
     <Popup :data="popup" @close="closePopup" />
-    
   </v-row>
 </template>
 
 <script>
 import Popup from "@/components/Popup";
-import Kanban from "@/components/Kanban";
+import Board from "@/components/Board";
 
 export default {
-  components: { Popup, Kanban },
+  components: { Popup, Board },
   head: {
     title: "Задачи",
   },
@@ -45,6 +44,7 @@ export default {
   data() {
     return {
       selectNameControls: "Задачи: Всех клиентов",
+      selectId: "all",
       columnHeight: 0,
       popup: {
         show: false,
@@ -63,11 +63,16 @@ export default {
     },
     task() {
       let result = {};
+
       this.$store.getters[`task/list`].forEach((element) => {
+        if (this.selectId !== "all")
+          if (element.client.id !== this.selectId) return;
+
         result[element.status] !== undefined
           ? result[element.status].push(element)
           : (result[element.status] = [element]);
       });
+
       return result;
     },
   },
@@ -84,6 +89,7 @@ export default {
     },
     showClientTasks(item) {
       this.selectNameControls = `Задачи: ${item.name}`;
+      this.selectId = item.id;
     },
     closePopup() {
       this.popup = {

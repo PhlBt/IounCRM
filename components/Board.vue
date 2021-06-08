@@ -14,7 +14,7 @@
 
           <v-flex>
             <v-card
-              class="ma-2"
+              class="ma-2 cursor-pointer"
               color="grey darken-2"
               v-for="item in data[status.id]"
               :key="item.id"
@@ -49,7 +49,7 @@
 import Timer from "../components/Timer";
 
 export default {
-  name: "Kanban",
+  name: "Board",
   components: { Timer },
   created() {
     window.addEventListener("resize", this.windowResize);
@@ -85,6 +85,7 @@ export default {
       });
     },
     descriptionResize(str) {
+      if (typeof str !== "string") return '';
       return str.length > this.strSize
         ? str.substr(0, this.strSize) + "..."
         : str;
@@ -94,8 +95,12 @@ export default {
 </script>
 
 <style>
+.cursor-pointer {
+  cursor: pointer;
+}
 .draggable-icon {
   color: #ffffff29 !important;
   cursor: move;
+  display: none !important;
 }
 </style>

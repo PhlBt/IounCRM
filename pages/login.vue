@@ -110,7 +110,6 @@ export default {
   },
   methods: {
     doAction() {
-      console.log('action', this.$refs.form.validate());
       if (!this.$refs.form.validate()) return;
       (this.type) 
         ? this.auth()

@@ -18,7 +18,6 @@ export default {
   },
   created() {
     this.$store.commit("setTitle", "Главная");
-    this.$store.dispatch("client/getClientList");
   },
   methods: {},
   computed: {

@@ -85,7 +85,7 @@ export default {
       this.pdf = {
         show: true,
         data: {
-          owner: this.$store.getters["client/get"]("hgNIKngBduiR0g1PRlr1"),
+          owner: this.$store.getters["auth/user"].legal,
           bill: item,
         },
       };

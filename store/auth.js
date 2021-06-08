@@ -5,12 +5,7 @@ export const state = () => ({
 })
 
 export const mutations = {
-    setUser: (state, payload) => {
-        state.user.auth = true
-        if (!!payload.uid) state.user.uid = payload.uid
-        if (!!payload.name) state.user.name = payload.name
-        if (!!payload.project) state.user.project = payload.project
-    },
+    setUser: (state, payload) => state.user = payload,
     unsetUser: state => state.user = { auth: false }
 }
 
@@ -25,13 +20,17 @@ export const actions = {
             .get().then((doc) => {
                 if (!doc.exists) return
                 let data = doc.data()
-                window.localStorage
-                    .setItem('user', JSON.stringify({
-                        auth: true,
-                        uid: user.authUser.uid,
-                        name: data.name
-                    }))
-                commit('setUser', { ...user.authUser, ...data })
+
+                let payload = {
+                    auth: true,
+                    uid: user.authUser.uid,
+                    name: data.name,
+                    project: data.project,
+                    legal: data.legal
+                }
+                
+                window.localStorage.setItem('user', JSON.stringify(payload))
+                commit('setUser', payload)
             })
     },
     unsetUser: function ({ commit }) {
@@ -62,5 +61,6 @@ export const actions = {
 
 export const getters = {
     user: state => state.user,
-    isAuthed: state => state.user.auth
+    isAuthed: state => state.user.auth,
+    project: state => state.user.project
 }

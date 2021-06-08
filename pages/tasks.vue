@@ -22,8 +22,8 @@
     </portal>
 
     <Kanban :data="task" @doEdit="doEditTask($event)" />
-
     <Popup :data="popup" @close="closePopup" />
+    
   </v-row>
 </template>
 

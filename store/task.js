@@ -11,10 +11,10 @@ export const state = () => ({
 })
 
 export const actions = {
-    save: function ({ dispatch }, payload) {
+    save: function ({ dispatch, rootGetters }, payload) {
         let data = { ...payload }
         let clientId = (typeof payload.client === 'object') ? payload.client.id : payload.client
-        data.client = this.$fire.firestore.doc('/clients/' + clientId)
+        data.client = this.$fire.firestore.doc(`/clients/${rootGetters['auth/project']}/data/${clientId}`)
 
         if (data.id) {
             let id = data.id
@@ -29,9 +29,10 @@ export const actions = {
             dispatch('create', data)
         }
     },
-    create: function ({ dispatch }, payload) {
+    create: function ({ dispatch, rootGetters }, payload) {
         this.$fire.firestore
-            .collection("tasks").add(payload)
+            .collection('tasks').doc(rootGetters['auth/project'])
+            .collection('data').add(payload)
             .then(() => {
                 dispatch('addAlert', { status: true, message: `Задача ${payload.name} добавлена` }, { root: true })
             })
@@ -39,10 +40,11 @@ export const actions = {
                 dispatch('addAlert', { status: false, message: `При добавлении задачи произошла ошибка` }, { root: true })
             })
     },
-    update: function ({ state, dispatch }, payload) {
+    update: function ({ state, dispatch, rootGetters }, payload) {
         let item = { ...state.tasks.find(item => item.id == payload.id) }
         this.$fire.firestore
-            .collection("tasks").doc(payload.id).update(payload.data)
+            .collection('tasks').doc(rootGetters['auth/project'])
+            .collection('data').doc(payload.id).set(payload.data)
             .then(() => {
                 dispatch('addAlert', { status: true, message: `Задача ${item.name} изменена` }, { root: true })
             })
@@ -50,10 +52,11 @@ export const actions = {
                 dispatch('addAlert', { status: false, message: `При изменении задачи произошла ошибка` }, { root: true })
             })
     },
-    delete: function ({ state, dispatch }, payload) {
+    delete: function ({ state, dispatch, rootGetters }, payload) {
         let item = { ...state.tasks.find(item => item.id == payload) }
         this.$fire.firestore
-            .collection("tasks").doc(payload).delete().then(() => {
+            .collection('tasks').doc(rootGetters['auth/project'])
+            .collection('data').doc(payload).delete().then(() => {
                 dispatch('addAlert', { status: true, message: `Задача ${item.name} удалена` }, { root: true })
             }).catch(() => {
                 dispatch('addAlert', { status: false, message: `При удалении задачи произошла ошибка` }, { root: true })
@@ -62,7 +65,8 @@ export const actions = {
     getTaskList: function ({ commit, state, rootGetters }) {
         if (state.isLoad) return
         this.$fire.firestore
-            .collection("tasks").where('status', '!=', 'ugE8LIW2VtjXnO7KcPuO')
+            .collection('tasks').doc(rootGetters['auth/project'])
+            .collection('data').where('status', '!=', 'ugE8LIW2VtjXnO7KcPuO')
             .onSnapshot((snapshots) => {
                 let list = []
                 snapshots.forEach(doc => {

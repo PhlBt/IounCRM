@@ -24,7 +24,7 @@ export const actions = {
         let data = { ...payload }
         let clientId = (typeof payload.client === 'object') ? payload.client.id : payload.client
 
-        data.client = this.$fire.firestore.doc('/clients/' + clientId)
+        data.client = this.$fire.firestore.doc(`/clients/${rootGetters['auth/project']}/data/${clientId}`)
 
         for (let val in data)
             if (data.hasOwnProperty(val) && !data[val])
@@ -39,11 +39,11 @@ export const actions = {
             delete data['id']
             dispatch('update', { id: payload.id, data: data })
         } else dispatch('create', data)
-
     },
-    create: function ({ dispatch }, payload) {
+    create: function ({ dispatch, rootGetters }, payload) {
         this.$fire.firestore
-            .collection("bills").add(payload)
+            .collection('bills').doc(rootGetters['auth/project'])
+            .collection('data').add(payload)
             .then(() => {
                 dispatch('addAlert', { status: true, message: `Счет №${payload.numb} добавлен` }, { root: true })
                 dispatch('updateCurrentSum', payload.client)
@@ -52,21 +52,24 @@ export const actions = {
                 dispatch('addAlert', { status: false, message: `При добавлении счета произошла ошибка` }, { root: true })
             })
     },
-    update: function ({ dispatch }, payload) {
+    update: function ({ dispatch, rootGetters }, payload) {
         this.$fire.firestore
-            .collection("bills").doc(payload.id).update(payload.data)
+            .collection('bills').doc(rootGetters['auth/project'])
+            .collection('data').doc(payload.id).set(payload.data)
             .then(() => {
                 dispatch('addAlert', { status: true, message: `Счет №${payload.data.numb} изменен` }, { root: true })
                 dispatch('updateCurrentSum', payload.data.client)
             })
             .catch((e) => {
                 dispatch('addAlert', { status: false, message: `При изменении счета произошла ошибка` }, { root: true })
+                console.log(e);
             })
     },
-    delete: function ({ state, dispatch }, payload) {
+    delete: function ({ state, dispatch, rootGetters }, payload) {
         let item = { ...state.bills.find(item => item.id == payload) }
         this.$fire.firestore
-            .collection("bills").doc(payload).delete().then(() => {
+            .collection('bills').doc(rootGetters['auth/project'])
+            .collection('data').doc(payload).delete().then(() => {
                 dispatch('addAlert', { status: true, message: `Счет №${item.numb} удален` }, { root: true })
                 dispatch('updateCurrentSum', item.client)
             }).catch(() => {
@@ -76,7 +79,8 @@ export const actions = {
     getBillList: function ({ commit, state, rootGetters }) {
         if (state.isLoad) return
         this.$fire.firestore
-            .collection("bills").onSnapshot((snapshots) => {
+            .collection('bills').doc(rootGetters['auth/project'])
+            .collection('data').onSnapshot((snapshots) => {
                 let list = []
                 snapshots.forEach(doc => {
                     let bill = doc.data()
@@ -87,7 +91,7 @@ export const actions = {
                 if (!state.isLoad) commit('isLoad', true)
             })
     },
-    updateCurrentSum({ dispatch, getters }, payload) {
+    updateCurrentSum({ dispatch, getters, rootGetters }, payload) {
         let sum = 0,
             allSum = 0;
         
@@ -96,15 +100,17 @@ export const actions = {
                 sum += elem.sum
             allSum += elem.sum
         })
-
+            
         this.$fire.firestore
-            .collection("clients").doc(payload.id).update({ sum: sum })
+            .collection('clients').doc(rootGetters['auth/project'])
+            .collection('data').doc(payload.id).update({ sum: sum })
             .catch(() => {
                 dispatch('addAlert', { status: false, message: `При обновлении дохода с клиента произошла ошибка` }, { root: true })
             })
 
         this.$fire.firestore
-            .collection("clients").doc("hgNIKngBduiR0g1PRlr1").update({ sum: allSum })
+            .collection('users').doc(rootGetters['auth/user'].uid)
+            .update({ 'legal.sum': allSum })
     }
 }
 

@@ -3,101 +3,62 @@
     <v-col cols="12" sm="8" md="3">
       <v-card class="elevation-12">
         <v-tabs fixed-tabs dark background-color="primary">
-          <v-tab @click="authReg = true">
+          <v-tab @click="setType(true)">
             <v-icon class="mr-3">mdi-account-key-outline</v-icon>
             Авторизация
           </v-tab>
-          <v-tab @click="authReg = false">
+          <v-tab @click="setType(false)">
             <v-icon class="mr-3">mdi-account-plus-outline</v-icon>
             Регистрация
           </v-tab>
         </v-tabs>
-        <div v-if="authReg">
-          <v-card-text>
-            <v-form ref="auth" @keyup.enter="auth()">
-              <v-text-field
-                v-model="email"
-                id="email"
-                label="Почта"
-                name="email"
-                prepend-icon="mdi-email-outline"
-                type="email"
-                :rules="rules.email"
-              ></v-text-field>
-              <v-text-field
-                v-model="password"
-                id="password"
-                label="Пароль"
-                name="password"
-                prepend-icon="mdi-form-textbox-password"
-                type="password"
-                minlength="4"
-                :rules="rules.password"
-              ></v-text-field>
-            </v-form>
-          </v-card-text>
+        <v-form ref="form" @keyup.enter="doAction()">
+          <v-slide-y-transition group tag="v-card-text" class="overflow-hidden">
+            <v-text-field
+              v-if="!type"
+              v-model="name"
+              id="name"
+              key="name"
+              label="Ваше имя"
+              name="name"
+              prepend-icon="mdi-account-outline"
+              type="name"
+              autocomplete="off"
+              :rules="rules.name"
+            ></v-text-field>
+            <v-text-field
+              v-model="email"
+              id="email"
+              label="Ваша почта"
+              name="email"
+              key="email"
+              prepend-icon="mdi-email-outline"
+              type="email"
+              :rules="rules.email"
+            ></v-text-field>
+            <v-text-field
+              v-model="password"
+              id="password"
+              label="Ваш пароль"
+              name="password"
+              key="password"
+              prepend-icon="mdi-form-textbox-password"
+              type="password"
+              minlength="4"
+              :rules="rules.password"
+            ></v-text-field>
+          </v-slide-y-transition>
           <v-card-actions class="d-flex justify-center mb-3">
-            <v-btn class="w-50" id="login-btn" color="primary" @click="auth()">
-              Войти
+            <v-btn
+              class="w-50"
+              id="login-btn"
+              color="primary"
+              @click="doAction()"
+            >
+              {{ type ? "Войти" : "Зарегистрироваться" }}
             </v-btn>
           </v-card-actions>
-        </div>
-        <div v-else>
-          <v-card-text>
-            <v-form ref="reg" @keyup.enter="reg()">
-              <v-text-field
-                v-model="email"
-                id="email"
-                label="Почта"
-                placeholder="Почта"
-                name="email"
-                prepend-icon="mdi-email-outline"
-                type="email"
-                :rules="rules.email"
-              ></v-text-field>
-              <v-text-field
-                v-model="password"
-                id="password"
-                label="Пароль"
-                name="password"
-                prepend-icon="mdi-form-textbox-password"
-                type="password"
-                minlength="4"
-                :rules="rules.password"
-              ></v-text-field>
-              <v-container>
-                <v-row>
-                  <v-text-field
-                    class="w-45"
-                    v-model="name"
-                    id="name"
-                    label="Имя"
-                    name="name"
-                    prepend-icon="mdi-account-outline"
-                    type="name"
-                    :rules="rules.name"
-                  ></v-text-field>
-                  <v-text-field
-                    class="w-45"
-                    v-model="project"
-                    id="project"
-                    label="Проект"
-                    name="project"
-                    prepend-icon="mdi-folder-outline"
-                    type="project"
-                    minlength="4"
-                    :rules="rules.project"
-                  ></v-text-field>
-                </v-row>
-              </v-container>
-            </v-form>
-          </v-card-text>
-          <v-card-actions class="d-flex justify-center mb-3">
-            <v-btn class="w-50" id="login-btn" color="primary" @click="reg()">
-              Зарегистрироваться
-            </v-btn>
-          </v-card-actions>
-        </div>
+        </v-form>
       </v-card>
     </v-col>
   </v-row>
@@ -112,7 +73,7 @@ export default {
   },
   data: function () {
     return {
-      authReg: true,
+      type: true,
       name: "",
       email: "",
       password: "",
@@ -130,8 +91,15 @@ export default {
       },
     };
   },
+  created() {
+    const chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for (let i = 0; i < 16; i++) {
+      this.project += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+  },
   computed: {
-    isAuth: function () {
+    isAuth() {
       return this.$store.getters["auth/isAuthed"];
     },
   },
@@ -141,18 +109,30 @@ export default {
     },
   },
   methods: {
-    auth: function () {
-      if (!this.$refs["auth"].validate()) return;
-      this.$store.dispatch("auth/login", { email: this.email, password: this.password });
+    doAction() {
+      console.log('action', this.$refs.form.validate());
+      if (!this.$refs.form.validate()) return;
+      (this.type) 
+        ? this.auth()
+        : this.reg()
     },
-    reg: function () {
-      if (!this.$refs["reg"].validate()) return;
-      this.$store.dispatch("auth/registration", { 
+    auth() {
+      this.$store.dispatch("auth/login", {
+        email: this.email,
+        password: this.password,
+      });
+    },
+    reg() {
+      this.$store.dispatch("auth/registration", {
         email: this.email,
         password: this.password,
         name: this.name,
-        project: this.project
+        project: this.project,
       });
+    },
+    setType(type) {
+      this.type = type;
+      this.$refs.form.reset();
     },
   },
 };
@@ -178,5 +158,8 @@ select:-webkit-autofill:focus {
   );
   color: #ffffff !important;
   -webkit-text-fill-color: rgb(255, 255, 255);
+}
+.overflow-hidden {
+  overflow: hidden;
 }
 </style>

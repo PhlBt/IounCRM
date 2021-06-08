@@ -33,9 +33,10 @@ export const actions = {
             dispatch('create', data)
         }
     },
-    create: function ({ dispatch }, payload) {
+    create: function ({ dispatch, rootGetters }, payload) {
         this.$fire.firestore
-            .collection("clients").add(payload)
+            .collection('clients').doc(rootGetters['auth/project'])
+            .collection('data').add(payload)
             .then(() => {
                 dispatch('addAlert', { status: true, message: `Клиент ${payload.name} добавлен` }, { root: true })
             })
@@ -43,9 +44,10 @@ export const actions = {
                 dispatch('addAlert', { status: false, message: `При добавлении клиента произошла ошибка` }, { root: true })
             })
     },
-    update: function ({ dispatch }, payload) {
+    update: function ({ dispatch, rootGetters }, payload) {
         this.$fire.firestore
-            .collection("clients").doc(payload.id).set(payload.data)
+            .collection('clients').doc(rootGetters['auth/project'])
+            .collection('data').doc(payload.id).set(payload.data)
             .then(() => {
                 dispatch('addAlert', { status: true, message: `Клиент ${payload.data.name} изменен` }, { root: true })
                 return true
@@ -55,20 +57,21 @@ export const actions = {
                 return false
             })
     },
-    delete: function ({ state, dispatch }, payload) {
+    delete: function ({ state, dispatch, rootGetters }, payload) {
         let item = { ...state.clients.find(item => item.id == payload) }
         this.$fire.firestore
-            .collection("clients").doc(payload).delete().then(() => {
+        .collection('clients').doc(rootGetters['auth/project'])
+        .collection('data').doc(payload).delete().then(() => {
                 dispatch('addAlert', { status: true, message: `Клиент ${item.name} удален` }, { root: true })
             }).catch(() => {
                 dispatch('addAlert', { status: false, message: `При удалении клиента произошла ошибка` }, { root: true })
             });
     },
-    getClientList: function ({ commit, state }) {
+    getClientList: function ({ commit, state, rootGetters }) {
         if (state.isLoad) return
         this.$fire.firestore
-            .collection("clients")
-            .onSnapshot((snapshots) => {
+            .collection('clients').doc(rootGetters['auth/project'])
+            .collection('data').onSnapshot((snapshots) => {
                 let list = []
                 snapshots.forEach(doc => list.push({ id: doc.id, ...doc.data() }))
                 commit('setClient', list)

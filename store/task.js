@@ -44,7 +44,7 @@ export const actions = {
         let item = { ...state.tasks.find(item => item.id == payload.id) }
         this.$fire.firestore
             .collection('tasks').doc(rootGetters['auth/project'])
-            .collection('data').doc(payload.id).set(payload.data)
+            .collection('data').doc(payload.id).update(payload.data)
             .then(() => {
                 dispatch('addAlert', { status: true, message: `Задача ${item.name} изменена` }, { root: true })
             })

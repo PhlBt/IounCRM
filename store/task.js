@@ -4,6 +4,7 @@ export const state = () => ({
         client: { type: 'reference', target: 'client', require: true, label: 'Клиент', cols: 6 },
         status: { type: 'reference', target: 'taskStatus', require: false, label: 'Статус', cols: 6, default: 'dZsbVDf3kh6dvxHgh8uA' },
         name: { type: 'string', require: true, label: 'Название', cols: 12 },
+        assessment: { type: 'string', require: false, label: 'Оценка', cols: 12 },
         description: { type: 'textarea', require: false, label: 'Описание', cols: 12, rows: 4 },
         time: { type: 'timer', label: 'Время', editable: true, cols: 12 }
     },

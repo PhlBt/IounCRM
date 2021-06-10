@@ -15,11 +15,11 @@
         </template>
 
         <template v-slot:[`item.sum`]="{ item }">
-          {{ item.sum }} руб.
+          {{ item.sum || 0 }} руб.
         </template>
 
         <template v-slot:[`item.gross`]="{ item }">
-          {{ item.gross }} руб.
+          {{ item.gross || 0 }} руб.
         </template>
 
         <template v-slot:[`item.action`]="{ item }">

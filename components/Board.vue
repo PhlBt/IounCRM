@@ -29,9 +29,13 @@
               </v-app-bar>
 
               <v-card-text>
-                {{ descriptionResize(item.description) }}
+                <v-row v-if="item.description.length > 0">
+                  <v-col>
+                    {{ descriptionResize(item.description) }}
+                  </v-col>
+                </v-row>
                 <v-row>
-                  <v-col class="d-flex justify-space-between align-center pb-0 mt-4">
+                  <v-col class="d-flex justify-space-between align-center pb-0">
                     {{ item.assessment }}
                     <Timer :id="item.id" :value="item.time" entity="task" />
                   </v-col>

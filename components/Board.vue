@@ -81,7 +81,7 @@ export default {
         let topBarH = document.querySelector(".v-app-bar").offsetHeight;
         let bottomBarH = document.querySelector(".v-footer").offsetHeight;
 
-        this.columnHeight = allH - topBarH - bottomBarH - 50;
+        this.columnHeight = allH - topBarH - bottomBarH - 25;
       });
     },
     descriptionResize(str) {

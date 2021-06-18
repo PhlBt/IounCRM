@@ -78,9 +78,7 @@ export default {
   },
   computed: {
     statusList() {
-      return this.$store.getters["taskStatus/list"].filter(
-        (item) => item.sort < 5
-      );
+      return this.$store.getters["taskStatus/list"].filter((item) => item.sort < 5);
     },
   },
   methods: {

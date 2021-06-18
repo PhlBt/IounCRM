@@ -29,7 +29,7 @@
               </v-app-bar>
 
               <v-card-text>
-                <v-row v-if="item.description.length > 0">
+                <v-row v-if="showDesc(item)">
                   <v-col>
                     {{ descriptionResize(item.description) }}
                   </v-col>
@@ -94,10 +94,15 @@ export default {
       });
     },
     descriptionResize(str) {
-      if (typeof str !== "string") return '';
+      if (typeof str !== "string") return "";
       return str.length > this.strSize
         ? str.substr(0, this.strSize) + "..."
         : str;
+    },
+    showDesc(item) {
+      if (item.hasOwnProperty('description'))
+        if (item.description.length > 0) return true;
+      return false;
     },
   },
 };

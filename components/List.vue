@@ -38,10 +38,18 @@ export default {
   props: {
     itemsName: String,
     headers: Array,
+    select: String,
   },
   computed: {
     items: function () {
-      return this.$store.getters[`${this.itemsName}`];
+      if (this.select === undefined || this.select === "all")
+        return this.$store.getters[`${this.itemsName}`];
+
+      let result = [];
+      this.$store.getters[`${this.itemsName}`].forEach((element) => {
+        if (element.client.id === this.select) result.push(element);
+      });
+      return result;
     },
   },
 };

@@ -1,6 +1,27 @@
 <template>
   <div>
-    <List itemsName="bill/list" :headers="headers">
+
+    <portal to="controls">
+      <v-menu bottom offset-y>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn class="mw-250" color="secondary" v-bind="attrs" v-on="on">
+            {{ selectNameControls }}
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item-group mandatory color="secondary">
+            <v-list-item v-for="item in clientsMenu" :key="item.id">
+              <v-list-item-title @click="showClientTasks(item)">{{
+                item.name
+              }}</v-list-item-title>
+            </v-list-item>
+          </v-list-item-group>
+        </v-list>
+      </v-menu>
+      <v-divider class="mx-4" vertical></v-divider>
+    </portal>
+
+    <List itemsName="bill/list" :headers="headers" :select="selectId">
       <template v-slot:[`headerAction`]>
         <v-btn color="secondary" @click="doAddBill()"> Добавить </v-btn>
       </template>
@@ -62,7 +83,17 @@ export default {
         data: false,
       },
       temp: null,
+      selectNameControls: "Счета: Всех клиентов",
+      selectId: "all",
     };
+  },
+  computed: {
+    clientsMenu() {
+      return [
+        { id: "all", name: "Все клиенты" },
+        ...this.$store.getters[`client/list`],
+      ];
+    },
   },
   methods: {
     doAddBill() {
@@ -102,6 +133,10 @@ export default {
         show: false,
         data: false,
       };
+    },
+    showClientTasks(item) {
+      this.selectNameControls = `Счета: ${item.name}`;
+      this.selectId = item.id;
     },
   },
 };

@@ -35,7 +35,7 @@ export const actions = {
     },
     create: function ({ dispatch, rootGetters }, payload) {
         this.$fire.firestore
-            .collection(rootGetters['auth/project']).doc('data')
+            .collection('data').doc(rootGetters['auth/project'])
             .collection('clients').add(payload)
             .then(() => {
                 dispatch('addAlert', { status: true, message: `Клиент ${payload.name} добавлен` }, { root: true })
@@ -46,7 +46,7 @@ export const actions = {
     },
     update: function ({ dispatch, rootGetters }, payload) {
         this.$fire.firestore
-            .collection(rootGetters['auth/project']).doc('data')
+            .collection('data').doc(rootGetters['auth/project'])
             .collection('clients').doc(payload.id)
             .set(payload.data).then(() => {
                 dispatch('addAlert', { status: true, message: `Клиент ${payload.data.name} изменен` }, { root: true })
@@ -60,7 +60,7 @@ export const actions = {
     delete: function ({ state, dispatch, rootGetters }, payload) {
         let item = { ...state.clients.find(item => item.id == payload) }
         this.$fire.firestore
-            .collection(rootGetters['auth/project']).doc('data')
+            .collection('data').doc(rootGetters['auth/project'])
             .collection('clients').doc(payload)
             .delete().then(() => {
                 dispatch('addAlert', { status: true, message: `Клиент ${item.name} удален` }, { root: true })
@@ -71,7 +71,7 @@ export const actions = {
     getClientList: function ({ commit, state, rootGetters }) {
         if (state.isLoad) return
         this.$fire.firestore
-            .collection(rootGetters['auth/project']).doc('data')
+            .collection('data').doc(rootGetters['auth/project'])
             .collection('clients').onSnapshot((snapshots) => {
                 let list = []
                 snapshots.forEach(doc => list.push({ id: doc.id, ...doc.data() }))

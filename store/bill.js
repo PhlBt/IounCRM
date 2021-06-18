@@ -24,7 +24,7 @@ export const actions = {
         let data = { ...payload }
         let clientId = (typeof payload.client === 'object') ? payload.client.id : payload.client
 
-        data.client = this.$fire.firestore.doc(`${rootGetters['auth/project']}/data/clients/${clientId}`)
+        data.client = this.$fire.firestore.doc(`data/${rootGetters['auth/project']}/clients/${clientId}`)
 
         for (let val in data)
             if (data.hasOwnProperty(val) && !data[val])
@@ -42,7 +42,7 @@ export const actions = {
     },
     create: function ({ dispatch, rootGetters }, payload) {
         this.$fire.firestore
-            .collection(rootGetters['auth/project']).doc('data')
+            .collection('data').doc(rootGetters['auth/project'])
             .collection('bills').add(payload)
             .then(() => {
                 dispatch('addAlert', { status: true, message: `Счет №${payload.numb} добавлен` }, { root: true })
@@ -54,7 +54,7 @@ export const actions = {
     },
     update: function ({ dispatch, rootGetters }, payload) {
         this.$fire.firestore
-            .collection(rootGetters['auth/project']).doc('data')
+            .collection('data').doc(rootGetters['auth/project'])
             .collection('bills').doc(payload.id).set(payload.data)
             .then(() => {
                 dispatch('addAlert', { status: true, message: `Счет №${payload.data.numb} изменен` }, { root: true })
@@ -68,7 +68,7 @@ export const actions = {
     delete: function ({ state, dispatch, rootGetters }, payload) {
         let item = { ...state.bills.find(item => item.id == payload) }
         this.$fire.firestore
-            .collection(rootGetters['auth/project']).doc('data')
+            .collection('data').doc(rootGetters['auth/project'])
             .collection('bills').doc(payload).delete().then(() => {
                 dispatch('addAlert', { status: true, message: `Счет №${item.numb} удален` }, { root: true })
                 dispatch('updateCurrentSum', item.client)
@@ -79,7 +79,7 @@ export const actions = {
     getBillList: function ({ commit, state, rootGetters }) {
         if (state.isLoad) return
         this.$fire.firestore
-            .collection(rootGetters['auth/project']).doc('data')
+            .collection('data').doc(rootGetters['auth/project'])
             .collection('bills').onSnapshot((snapshots) => {
                 let list = []
                 snapshots.forEach(doc => {
@@ -102,7 +102,7 @@ export const actions = {
         })
             
         this.$fire.firestore
-            .collection(rootGetters['auth/project']).doc('data')
+            .collection('data').doc(rootGetters['auth/project'])
             .collection('clients').doc(payload.id).update({ sum: sum })
             .catch(() => {
                 dispatch('addAlert', { status: false, message: `При обновлении дохода с клиента произошла ошибка` }, { root: true })

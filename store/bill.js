@@ -24,7 +24,7 @@ export const actions = {
         let data = { ...payload }
         let clientId = (typeof payload.client === 'object') ? payload.client.id : payload.client
 
-        data.client = this.$fire.firestore.doc(`/clients/${rootGetters['auth/project']}/data/${clientId}`)
+        data.client = this.$fire.firestore.doc(`${rootGetters['auth/project']}/data/clients/${clientId}`)
 
         for (let val in data)
             if (data.hasOwnProperty(val) && !data[val])

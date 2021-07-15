@@ -109,6 +109,8 @@ export default {
       return `${hour}:${minut}:${second}`;
     },
     timeToInt(val) {
+      if (val === null) return 0;
+
       let result = 0;
       let timeArr = val.split(":");
 
